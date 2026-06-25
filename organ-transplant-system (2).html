@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>TransplantCare — Organ Allocation & Care System</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
+
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d47;
+    --accent: #00c9a7;
+    --accent2: #3b82f6;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --success: #10b981;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --heading: 'DM Serif Display', serif;
+    --body: 'Inter', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--heading);
+    font-size: 1.4rem;
+    color: var(--accent);
+  }
+  .nav-brand svg { width: 28px; height: 28px; }
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+  }
+  .nav-tab {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-tab:hover { background: var(--surface2); color: var(--text); }
+  .nav-tab.active { background: var(--accent); color: #000; font-weight: 600; }
+
+  /* MAIN */
+  main { padding: 2rem; max-width: 1300px; margin: 0 auto; }
+
+  /* SECTIONS */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .card-title {
+    font-family: var(--heading);
+    font-size: 1.2rem;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .icon { font-size: 1.1rem; }
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; }
+
+  /* FORM ELEMENTS */
+  .form-group { margin-bottom: 1rem; }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 0.9rem;
+    transition: border 0.2s;
+    outline: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 80px; }
+  select option { background: var(--surface2); }
+
+  /* BUTTONS */
+  .btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-family: var(--body);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-warn { background: var(--warn); color: #000; }
+  .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+
+  /* BADGES */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .badge-success { background: rgba(16,185,129,0.15); color: var(--success); }
+  .badge-warn { background: rgba(245,158,11,0.15); color: var(--warn); }
+  .badge-danger { background: rgba(239,68,68,0.15); color: var(--danger); }
+  .badge-info { background: rgba(59,130,246,0.15); color: var(--accent2); }
+  .badge-neutral { background: rgba(100,116,139,0.15); color: var(--muted); }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #0a0f1e 0%, #0d1f3c 50%, #0a1628 100%);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3rem 2.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(0,201,167,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    display: inline-block;
+    background: rgba(0,201,167,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(0,201,167,0.3);
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .hero h1 {
+    font-family: var(--heading);
+    font-size: 2.4rem;
+    color: #fff;
+    line-height: 1.15;
+    margin-bottom: 0.75rem;
+  }
+  .hero h1 em { color: var(--accent); font-style: italic; }
+  .hero p {
+    color: var(--muted);
+    font-size: 1rem;
+    max-width: 520px;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+  .stats-row {
+    display: flex;
+    gap: 2.5rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .stat { }
+  .stat-num {
+    font-family: var(--heading);
+    font-size: 2rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+  /* PIPELINE */
+  .pipeline {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 2rem;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  .pipeline-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 110px;
+  }
+  .pipeline-step .step-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s;
+  }
+  .pipeline-step.done .step-circle { background: var(--accent); color: #000; }
+  .pipeline-step.active .step-circle { background: var(--accent2); color: #fff; box-shadow: 0 0 0 4px rgba(59,130,246,0.25); }
+  .pipeline-step.pending .step-circle { background: var(--surface2); color: var(--muted); border: 2px dashed var(--border); }
+  .pipeline-step .step-label { font-size: 0.72rem; color: var(--muted); margin-top: 6px; text-align: center; line-height: 1.3; }
+  .pipeline-step.active .step-label { color: var(--text); font-weight: 600; }
+  .pipeline-connector {
+    height: 2px;
+    flex: 1;
+    background: var(--border);
+    margin-bottom: 28px;
+  }
+  .pipeline-connector.done { background: var(--accent); }
+
+  /* MATCH TABLE */
+  .match-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+  .match-table th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+  }
+  .match-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(30,45,71,0.5);
+    vertical-align: middle;
+  }
+  .match-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* COMPAT CHECKER */
+  .compat-grid {
+    display: grid;
+    grid-template-columns: 1fr 40px 1fr;
+    align-items: start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .compat-vs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding-top: 32px;
+    font-weight: 700;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+  .compat-result {
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  .compat-result.pass { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); }
+  .compat-result.fail { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); }
+  .compat-result.warn { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); }
+
+  .check-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    font-size: 0.85rem;
+  }
+  .check-icon { font-size: 1rem; flex-shrink: 0; }
+
+  /* MONITORING */
+  .vitals-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .vital-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .vital-val {
+    font-family: var(--heading);
+    font-size: 1.8rem;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .vital-name { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .vital-unit { font-size: 0.7rem; color: var(--muted); }
+
+  /* REJECTION RISK */
+  .risk-meter {
+    height: 12px;
+    background: var(--surface2);
+    border-radius: 99px;
+    overflow: hidden;
+    margin: 8px 0;
+    position: relative;
+  }
+  .risk-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.6s ease;
+  }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+  .tl-item {
+    position: relative;
+    padding-bottom: 1.25rem;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -21px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+  }
+  .tl-item.warn::before { background: var(--warn); }
+  .tl-item.danger::before { background: var(--danger); }
+  .tl-date { font-size: 0.75rem; color: var(--muted); margin-bottom: 2px; }
+  .tl-text { font-size: 0.875rem; }
+
+  /* ALERT */
+  .alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+  }
+  .alert-warn { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: #fbbf24; }
+  .alert-danger { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #f87171; }
+  .alert-success { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #34d399; }
+  .alert-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+  /* TABS (inner) */
+  .inner-tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0; }
+  .inner-tab {
+    padding: 8px 16px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-family: var(--body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+  }
+  .inner-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* SCHEDULE */
+  .schedule-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.875rem;
+  }
+  .schedule-row:last-child { border-bottom: none; }
+  .schedule-date { color: var(--accent); font-weight: 600; width: 110px; }
+  .schedule-info { flex: 1; }
+  .schedule-type { font-weight: 500; }
+  .schedule-sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+  /* NOTIFICATION DOT */
+  .notif-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--danger);
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 6px;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* PAGE TITLE */
+  .page-title {
+    font-family: var(--heading);
+    font-size: 1.8rem;
+    color: #fff;
+    margin-bottom: 0.4rem;
+  }
+  .page-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+  /* SEARCH */
+  .search-bar {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+  .search-bar input {
+    padding-left: 40px;
+  }
+  .search-bar svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: var(--muted);
+  }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  @media (max-width: 768px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .vitals-grid { grid-template-columns: 1fr 1fr; }
+    .compat-grid { grid-template-columns: 1fr; }
+    .compat-vs { display: none; }
+    .hero h1 { font-size: 1.6rem; }
+    nav { padding: 0 1rem; }
+    .nav-tabs { gap: 2px; }
+    .nav-tab { padding: 6px 10px; font-size: 0.78rem; }
+    main { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 4C14 4 7 8 7 14.5C7 18.6 10.1 22 14 22C17.9 22 21 18.6 21 14.5C21 8 14 4 14 4Z" fill="#00c9a7" opacity="0.3"/>
+      <path d="M14 4C14 4 7 8 7 14.5C7 18.6 10.1 22 14 22" stroke="#00c9a7" stroke-width="2" stroke-linecap="round"/>
+      <path d="M14 4C14 4 21 8 21 14.5C21 18.6 17.9 22 14 22" stroke="#00c9a7" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="14" cy="14" r="3" fill="#00c9a7"/>
+    </svg>
+    TransplantCare
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showSection('dashboard')">Dashboard</button>
+    <button class="nav-tab" onclick="showSection('register')">Register</button>
+    <button class="nav-tab" onclick="showSection('allocation')">Allocation</button>
+    <button class="nav-tab" onclick="showSection('compatibility')">Bio Compatibility</button>
+    <button class="nav-tab" onclick="showSection('monitoring')">Post-Transplant <span class="notif-dot"></span></button>
+    <button class="nav-tab" onclick="showSection('followup')">Follow-Up</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- ====== REGISTER ====== -->
+<div id="register" class="section">
+  <div class="page-title">Register Donor / Recipient</div>
+  <div class="page-sub">Register new organ donors or patients awaiting transplant into the system</div>
+
+  <div class="inner-tabs">
+    <button class="inner-tab active" onclick="showInnerTab('reg','donor')">🫀 Register Donor</button>
+    <button class="inner-tab" onclick="showInnerTab('reg','recipient')">🏥 Register Recipient</button>
+    <button class="inner-tab" onclick="showInnerTab('reg','records')">📋 All Records</button>
+  </div>
+
+  <!-- DONOR FORM -->
+  <div id="reg-donor" class="compat-tab">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="icon">👤</span> Donor Personal Details</div>
+        <div class="grid-2">
+          <div class="form-group"><label>First Name</label><input type="text" id="d-fname" placeholder="e.g. Rahul"/></div>
+          <div class="form-group"><label>Last Name</label><input type="text" id="d-lname" placeholder="e.g. Sharma"/></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Age</label><input type="number" id="d-age" placeholder="34" min="1" max="80"/></div>
+          <div class="form-group"><label>Gender</label>
+            <select id="d-gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+        </div>
+        <div class="form-group"><label>Date of Birth</label><input type="date" id="d-dob"/></div>
+        <div class="form-group"><label>Aadhaar / National ID</label><input type="text" id="d-id" placeholder="XXXX-XXXX-XXXX"/></div>
+        <div class="form-group"><label>Phone Number</label><input type="tel" id="d-phone" placeholder="+91 98765 43210"/></div>
+        <div class="form-group"><label>Email</label><input type="email" id="d-email" placeholder="rahul@email.com"/></div>
+        <div class="form-group"><label>Address</label><textarea id="d-address" placeholder="Full address including city, state, pincode"></textarea></div>
+        <div class="form-group"><label>Emergency Contact Name</label><input type="text" id="d-ecname" placeholder="Family member name"/></div>
+        <div class="form-group"><label>Emergency Contact Phone</label><input type="tel" id="d-ecphone" placeholder="+91 98765 43210"/></div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-title"><span class="icon">🩸</span> Medical Information</div>
+          <div class="grid-2">
+            <div class="form-group"><label>Blood Type</label>
+              <select id="d-blood"><option value="">Select</option><option>O+</option><option>O−</option><option>A+</option><option>A−</option><option>B+</option><option>B−</option><option>AB+</option><option>AB−</option></select></div>
+            <div class="form-group"><label>Weight (kg)</label><input type="number" id="d-weight" placeholder="70"/></div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group"><label>Height (cm)</label><input type="number" id="d-height" placeholder="170"/></div>
+            <div class="form-group"><label>BMI</label><input type="text" id="d-bmi" placeholder="Auto" readonly style="color:var(--accent)"/></div>
+          </div>
+          <div class="form-group"><label>Donor Type</label>
+            <select id="d-type">
+              <option>Living Donor</option>
+              <option>Deceased — Brain Death (DBD)</option>
+              <option>Deceased — Cardiac Death (DCD)</option>
+            </select></div>
+          <div class="form-group"><label>Organs Willing to Donate</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;" id="d-organs">
+              <label style="display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:0.875rem;font-weight:400;cursor:pointer;"><input type="checkbox" value="Kidney" style="width:auto"> Kidney</label>
+              <label style="display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:0.875rem;font-weight:400;cursor:pointer;"><input type="checkbox" value="Heart" style="width:auto"> Heart</label>
+              <label style="display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:0.875rem;font-weight:400;cursor:pointer;"><input type="checkbox" value="Liver" style="width:auto"> Liver</label>
+              <label style="display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:0.875rem;font-weight:400;cursor:pointer;"><input type="checkbox" value="Lung" style="width:auto"> Lung</label>
+              <label style="display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:0.875rem;font-weight:400;cursor:pointer;"><input type="checkbox" value="Pancreas" style="width:auto"> Pancreas</label>
+              <label style="display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:0.875rem;font-weight:400;cursor:pointer;"><input type="checkbox" value="Cornea" style="width:auto"> Cornea</label>
+              <label style="display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:0.875rem;font-weight:400;cursor:pointer;"><input type="checkbox" value="Skin" style="width:auto"> Skin</label>
+              <label style="display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:0.875rem;font-weight:400;cursor:pointer;"><input type="checkbox" value="Bone Marrow" style="width:auto"> Bone Marrow</label>
+            </div>
+          </div>
+          <div class="form-group"><label>Known Medical Conditions</label><textarea id="d-conditions" placeholder="Diabetes, Hypertension, etc. Write 'None' if healthy"></textarea></div>
+          <div class="form-group"><label>Current Medications</label><textarea id="d-meds" placeholder="List any ongoing medications"></textarea></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="icon">🏥</span> Hospital & Consent</div>
+          <div class="form-group"><label>Registered Hospital</label><input type="text" id="d-hospital" placeholder="e.g. Manipal Hospital, Bengaluru"/></div>
+          <div class="form-group"><label>Attending Doctor</label><input type="text" id="d-doctor" placeholder="Dr. Name"/></div>
+          <div class="form-group"><label>Registration Date</label><input type="date" id="d-regdate"/></div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:1rem;">
+            <label style="display:flex;align-items:flex-start;gap:10px;text-transform:none;letter-spacing:0;font-size:0.85rem;font-weight:400;cursor:pointer;">
+              <input type="checkbox" id="d-consent" style="width:auto;margin-top:2px;">
+              I / my family give informed consent for organ donation and understand this registration is voluntary and can be withdrawn at any time.
+            </label>
+          </div>
+          <button class="btn btn-primary" style="width:100%" onclick="registerDonor()">✅ Register Donor</button>
+        </div>
+      </div>
+    </div>
+    <div id="donorMsg"></div>
+  </div>
+
+  <!-- RECIPIENT FORM -->
+  <div id="reg-recipient" class="compat-tab" style="display:none;">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="icon">👤</span> Recipient Personal Details</div>
+        <div class="grid-2">
+          <div class="form-group"><label>First Name</label><input type="text" id="r-fname" placeholder="e.g. Priya"/></div>
+          <div class="form-group"><label>Last Name</label><input type="text" id="r-lname" placeholder="e.g. Nair"/></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Age</label><input type="number" id="r-age" placeholder="42" min="1"/></div>
+          <div class="form-group"><label>Gender</label>
+            <select id="r-gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+        </div>
+        <div class="form-group"><label>Date of Birth</label><input type="date" id="r-dob"/></div>
+        <div class="form-group"><label>Aadhaar / National ID</label><input type="text" id="r-id" placeholder="XXXX-XXXX-XXXX"/></div>
+        <div class="form-group"><label>Phone Number</label><input type="tel" id="r-phone" placeholder="+91 98765 43210"/></div>
+        <div class="form-group"><label>Email</label><input type="email" id="r-email" placeholder="priya@email.com"/></div>
+        <div class="form-group"><label>Address</label><textarea id="r-address" placeholder="Full address including city, state, pincode"></textarea></div>
+        <div class="form-group"><label>Emergency Contact Name</label><input type="text" id="r-ecname"/></div>
+        <div class="form-group"><label>Emergency Contact Phone</label><input type="tel" id="r-ecphone"/></div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-title"><span class="icon">🩺</span> Medical Details</div>
+          <div class="grid-2">
+            <div class="form-group"><label>Blood Type</label>
+              <select id="r-blood"><option value="">Select</option><option>O+</option><option>O−</option><option>A+</option><option>A−</option><option>B+</option><option>B−</option><option>AB+</option><option>AB−</option></select></div>
+            <div class="form-group"><label>Weight (kg)</label><input type="number" id="r-weight" placeholder="65"/></div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group"><label>Height (cm)</label><input type="number" id="r-height" placeholder="165"/></div>
+            <div class="form-group"><label>BMI</label><input type="text" id="r-bmi" placeholder="Auto" readonly style="color:var(--accent)"/></div>
+          </div>
+          <div class="form-group"><label>Organ Required</label>
+            <select id="r-organ">
+              <option>Kidney</option><option>Heart</option><option>Liver</option>
+              <option>Lung</option><option>Pancreas</option><option>Cornea</option>
+            </select></div>
+          <div class="form-group"><label>Diagnosis / Reason for Transplant</label><textarea id="r-diagnosis" placeholder="e.g. End-stage renal disease, Cirrhosis, Dilated cardiomyopathy..."></textarea></div>
+          <div class="form-group"><label>Urgency Level</label>
+            <select id="r-urgency">
+              <option value="critical">🔴 Critical — Life threatening, immediate</option>
+              <option value="high">🟠 High — Deteriorating, within weeks</option>
+              <option value="medium">🟡 Medium — Stable but declining</option>
+              <option value="low">🟢 Low — Stable, can wait</option>
+            </select></div>
+          <div class="form-group"><label>Current Treatment</label><textarea id="r-treatment" placeholder="e.g. Dialysis 3x/week, on inotropes, on oxygen support..."></textarea></div>
+          <div class="form-group"><label>Known Allergies</label><textarea id="r-allergies" placeholder="Drug allergies, food allergies, latex etc. Write 'NKDA' if none."></textarea></div>
+          <div class="form-group"><label>PRA % (if known)</label><input type="number" id="r-pra" placeholder="0–100" min="0" max="100"/></div>
+          <div class="form-group"><label>Time on Waiting List</label>
+            <select id="r-waittime">
+              <option>Less than 6 months</option>
+              <option>6 months – 1 year</option>
+              <option>1 – 2 years</option>
+              <option>2 – 5 years</option>
+              <option>More than 5 years</option>
+            </select></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="icon">🏥</span> Hospital & Consent</div>
+          <div class="form-group"><label>Treating Hospital</label><input type="text" id="r-hospital" placeholder="e.g. Apollo Hospital, Chennai"/></div>
+          <div class="form-group"><label>Transplant Surgeon</label><input type="text" id="r-doctor" placeholder="Dr. Name"/></div>
+          <div class="form-group"><label>Registration Date</label><input type="date" id="r-regdate"/></div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:1rem;">
+            <label style="display:flex;align-items:flex-start;gap:10px;text-transform:none;letter-spacing:0;font-size:0.85rem;font-weight:400;cursor:pointer;">
+              <input type="checkbox" id="r-consent" style="width:auto;margin-top:2px;">
+              I consent to being registered on the national transplant waitlist and agree to medical evaluation and data sharing with the transplant team.
+            </label>
+          </div>
+          <button class="btn btn-primary" style="width:100%" onclick="registerRecipient()">✅ Register Recipient</button>
+        </div>
+      </div>
+    </div>
+    <div id="recipientMsg"></div>
+  </div>
+
+  <!-- RECORDS TABLE -->
+  <div id="reg-records" class="compat-tab" style="display:none;">
+    <div class="card">
+      <div class="card-title"><span class="icon">🫀</span> Registered Donors</div>
+      <div id="donorTable">
+        <table class="match-table" style="width:100%">
+          <thead><tr><th>ID</th><th>Name</th><th>Age</th><th>Blood</th><th>Organs</th><th>Hospital</th><th>Type</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody id="donorTbody">
+            <tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--muted);">No donors registered yet. Use the Register Donor tab.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1.5rem;">
+      <div class="card-title"><span class="icon">🏥</span> Registered Recipients</div>
+      <table class="match-table" style="width:100%">
+        <thead><tr><th>ID</th><th>Name</th><th>Age</th><th>Blood</th><th>Organ Needed</th><th>Urgency</th><th>Hospital</th><th>Wait Time</th><th>Status</th></tr></thead>
+        <tbody id="recipientTbody">
+          <tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--muted);">No recipients registered yet. Use the Register Recipient tab.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ====== DASHBOARD ====== -->
+<div id="dashboard" class="section active">
+  <div class="hero">
+    <div class="hero-tag">🏥 End-to-End Care Platform</div>
+    <h1>From Organ Match to <em>Recovery</em></h1>
+    <p>A complete clinical workflow: distance-based allocation, biological compatibility verification, post-transplant immune monitoring, and long-term follow-up care — all in one place.</p>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="showSection('allocation')">Start Allocation →</button>
+      <button class="btn btn-secondary" onclick="showSection('compatibility')">Check Compatibility</button>
+    </div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num">4</div><div class="stat-label">Active Transplants</div></div>
+      <div class="stat"><div class="stat-num">2</div><div class="stat-label">Pending Matches</div></div>
+      <div class="stat"><div class="stat-num">1</div><div class="stat-label">⚠ Rejection Alert</div></div>
+      <div class="stat"><div class="stat-num">7</div><div class="stat-label">Follow-ups This Week</div></div>
+    </div>
+  </div>
+
+  <!-- Full Pipeline -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🔄</span> Transplant Workflow Pipeline</div>
+    <div class="pipeline">
+      <div class="pipeline-step done">
+        <div class="step-circle">✓</div>
+        <div class="step-label">Organ<br>Available</div>
+      </div>
+      <div class="pipeline-connector done"></div>
+      <div class="pipeline-step done">
+        <div class="step-circle">✓</div>
+        <div class="step-label">Distance &<br>Priority Match</div>
+      </div>
+      <div class="pipeline-connector done"></div>
+      <div class="pipeline-step active">
+        <div class="step-circle">3</div>
+        <div class="step-label">Bio Compatibility<br>Check</div>
+      </div>
+      <div class="pipeline-connector"></div>
+      <div class="pipeline-step pending">
+        <div class="step-circle">4</div>
+        <div class="step-label">Doctor<br>Sign-off</div>
+      </div>
+      <div class="pipeline-connector"></div>
+      <div class="pipeline-step pending">
+        <div class="step-circle">5</div>
+        <div class="step-label">Surgery &<br>Transplant</div>
+      </div>
+      <div class="pipeline-connector"></div>
+      <div class="pipeline-step pending">
+        <div class="step-circle">6</div>
+        <div class="step-label">ICU<br>Monitoring</div>
+      </div>
+      <div class="pipeline-connector"></div>
+      <div class="pipeline-step pending">
+        <div class="step-circle">7</div>
+        <div class="step-label">Long-term<br>Follow-up</div>
+      </div>
+    </div>
+    <p style="font-size:0.8rem;color:var(--muted);">Current case: <strong style="color:var(--text)">Rahul M. (Kidney)</strong> — awaiting biological compatibility clearance from surgical team</p>
+  </div>
+
+  <!-- Alerts -->
+  <div class="alert alert-danger">
+    <span class="alert-icon">🚨</span>
+    <div><strong>Rejection Alert:</strong> Priya S. (Liver, 14 days post-op) showing elevated creatinine (2.8 mg/dL) and mild fever. Immune rejection protocol activated. <button class="btn btn-sm btn-danger" style="margin-left:12px" onclick="showSection('monitoring')">View Patient →</button></div>
+  </div>
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠️</span>
+    <div><strong>Bio Compatibility Pending:</strong> Case #TC-2024-007 (Heart) — crossmatch test results awaited from lab. Surgery on hold.</div>
+  </div>
+  <div class="alert alert-success">
+    <span class="alert-icon">✅</span>
+    <div><strong>Recovery Milestone:</strong> Arun K. (Kidney, 6 months) — all markers normal. Cleared for reduced immunosuppressant dosage.</div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="icon">📅</span> Today's Follow-ups</div>
+      <div class="schedule-row"><div class="schedule-date">9:00 AM</div><div class="schedule-info"><div class="schedule-type">Priya S. — Emergency Review</div><div class="schedule-sub">Rejection monitoring, Day 14</div></div><span class="badge badge-danger">Urgent</span></div>
+      <div class="schedule-row"><div class="schedule-date">11:30 AM</div><div class="schedule-info"><div class="schedule-type">Mohan R. — Routine Checkup</div><div class="schedule-sub">Liver function panel, Day 90</div></div><span class="badge badge-success">Stable</span></div>
+      <div class="schedule-row"><div class="schedule-date">2:00 PM</div><div class="schedule-info"><div class="schedule-type">Kavya T. — Allergy Review</div><div class="schedule-sub">Drug sensitivity follow-up</div></div><span class="badge badge-warn">Pending</span></div>
+      <div class="schedule-row"><div class="schedule-date">4:30 PM</div><div class="schedule-info"><div class="schedule-type">Arun K. — 6-Month Milestone</div><div class="schedule-sub">Full panel + imaging</div></div><span class="badge badge-info">Milestone</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">📊</span> Organ Queue Status</div>
+      <div class="match-table" style="font-size:0.82rem;">
+        <table style="width:100%;border-collapse:collapse;">
+          <tr style="border-bottom:1px solid var(--border)"><th style="padding:8px 6px;color:var(--muted);font-size:0.72rem;text-align:left;">Organ</th><th style="padding:8px 6px;color:var(--muted);font-size:0.72rem;text-align:left;">Recipient</th><th style="padding:8px 6px;color:var(--muted);font-size:0.72rem;text-align:left;">Stage</th><th style="padding:8px 6px;color:var(--muted);font-size:0.72rem;text-align:left;">Status</th></tr>
+          <tr style="border-bottom:1px solid rgba(30,45,71,0.4)"><td style="padding:8px 6px;">🫀 Heart</td><td style="padding:8px 6px;">Rahul M.</td><td style="padding:8px 6px;">Bio Check</td><td style="padding:8px 6px;"><span class="badge badge-warn">⏳ In Progress</span></td></tr>
+          <tr style="border-bottom:1px solid rgba(30,45,71,0.4)"><td style="padding:8px 6px;">🫘 Kidney</td><td style="padding:8px 6px;">Sunita P.</td><td style="padding:8px 6px;">Crossmatch</td><td style="padding:8px 6px;"><span class="badge badge-info">Lab Pending</span></td></tr>
+          <tr style="border-bottom:1px solid rgba(30,45,71,0.4)"><td style="padding:8px 6px;">🫁 Lung</td><td style="padding:8px 6px;">Dev K.</td><td style="padding:8px 6px;">Doctor Review</td><td style="padding:8px 6px;"><span class="badge badge-success">Approved</span></td></tr>
+          <tr><td style="padding:8px 6px;">🟤 Liver</td><td style="padding:8px 6px;">Ananya R.</td><td style="padding:8px 6px;">Allocation</td><td style="padding:8px 6px;"><span class="badge badge-neutral">Queued</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== ALLOCATION ====== -->
+<div id="allocation" class="section">
+  <div class="page-title">Organ Allocation</div>
+  <div class="page-sub">Initial matching based on geography, urgency, wait time and blood type pre-screening</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="icon">🫀</span> Available Organ</div>
+      <div class="form-group"><label>Organ Type</label>
+        <select><option>Kidney</option><option>Heart</option><option>Liver</option><option>Lung</option><option>Pancreas</option><option>Cornea</option></select></div>
+      <div class="form-group"><label>Donor Hospital</label><input type="text" value="Manipal Hospital, Bengaluru"/></div>
+      <div class="form-group"><label>Donor Blood Type</label>
+        <select><option>O+</option><option>O−</option><option>A+</option><option>A−</option><option>B+</option><option>B−</option><option>AB+</option><option>AB−</option></select></div>
+      <div class="grid-2">
+        <div class="form-group"><label>Organ Size (cm³)</label><input type="number" value="280" placeholder="Volume"/></div>
+        <div class="form-group"><label>Donor Age</label><input type="number" value="34"/></div>
+      </div>
+      <div class="form-group"><label>Viability Window (hrs)</label><input type="number" value="24"/></div>
+      <div class="form-group"><label>Special Notes</label><textarea placeholder="Any known conditions, medications...">No known conditions. Cardiac death donor.</textarea></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">🎯</span> Match Results</div>
+      <div class="alert alert-success" style="margin-bottom:1rem;">
+        <span class="alert-icon">✅</span> 3 potential recipients found within viability window
+      </div>
+      <table class="match-table">
+        <thead><tr><th>Recipient</th><th>Distance</th><th>Wait</th><th>Urgency</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Rahul M.</strong><br><span style="font-size:0.75rem;color:var(--muted)">Apollo, Chennai</span></td>
+            <td>345 km</td>
+            <td>2.1 yrs</td>
+            <td><span class="badge badge-danger">Critical</span></td>
+            <td><button class="btn btn-sm btn-primary" onclick="showSection('compatibility')">Check Bio →</button></td>
+          </tr>
+          <tr>
+            <td><strong>Meena V.</strong><br><span style="font-size:0.75rem;color:var(--muted)">Fortis, Hyderabad</span></td>
+            <td>570 km</td>
+            <td>3.4 yrs</td>
+            <td><span class="badge badge-warn">High</span></td>
+            <td><button class="btn btn-sm btn-secondary">Check Bio →</button></td>
+          </tr>
+          <tr>
+            <td><strong>Pradeep S.</strong><br><span style="font-size:0.75rem;color:var(--muted)">AIIMS, Delhi</span></td>
+            <td>1840 km</td>
+            <td>1.8 yrs</td>
+            <td><span class="badge badge-warn">High</span></td>
+            <td><button class="btn btn-sm btn-secondary">Check Bio →</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <hr class="divider"/>
+      <p style="font-size:0.78rem;color:var(--muted);">⚠ Distance & urgency are <strong style="color:var(--warn)">preliminary filters only</strong>. Biological compatibility must be verified by the surgical team before final allocation.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ====== COMPATIBILITY ====== -->
+<div id="compatibility" class="section">
+  <div class="page-title">Biological Compatibility Check</div>
+  <div class="page-sub">Comprehensive medical compatibility assessment — verified offline by surgical team</div>
+
+  <div class="inner-tabs">
+    <button class="inner-tab active" onclick="showInnerTab('compat','blood')">Blood Type</button>
+    <button class="inner-tab" onclick="showInnerTab('compat','hla')">HLA Matching</button>
+    <button class="inner-tab" onclick="showInnerTab('compat','size')">Organ Size</button>
+    <button class="inner-tab" onclick="showInnerTab('compat','crossmatch')">Crossmatch Test</button>
+    <button class="inner-tab" onclick="showInnerTab('compat','signoff')">Doctor Sign-off</button>
+  </div>
+
+  <!-- BLOOD -->
+  <div id="compat-blood" class="compat-tab">
+    <div class="card">
+      <div class="card-title"><span class="icon">🩸</span> Blood Type Compatibility</div>
+      <div class="compat-grid">
+        <div>
+          <label>Donor Blood Type</label>
+          <select id="donorBlood" onchange="checkBloodCompat()">
+            <option value="O+">O+</option><option value="O-">O−</option>
+            <option value="A+">A+</option><option value="A-">A−</option>
+            <option value="B+" selected>B+</option><option value="B-">B−</option>
+            <option value="AB+">AB+</option><option value="AB-">AB−</option>
+          </select>
+        </div>
+        <div class="compat-vs">VS</div>
+        <div>
+          <label>Recipient Blood Type</label>
+          <select id="recipBlood" onchange="checkBloodCompat()">
+            <option value="O+">O+</option><option value="O-">O−</option>
+            <option value="A+">A+</option><option value="A-">A−</option>
+            <option value="B+" selected>B+</option><option value="B-">B−</option>
+            <option value="AB+">AB+</option><option value="AB-">AB−</option>
+          </select>
+        </div>
+      </div>
+      <div id="bloodResult"></div>
+      <div style="margin-top:1.5rem;">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.75rem;">Compatibility Matrix</p>
+        <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+          <thead><tr><th style="padding:6px;background:var(--surface2);color:var(--muted);">Recipient ↓ / Donor →</th>
+            <th style="padding:6px;background:var(--surface2);color:var(--muted);">O−</th><th style="padding:6px;background:var(--surface2);color:var(--muted);">O+</th><th style="padding:6px;background:var(--surface2);color:var(--muted);">A−</th><th style="padding:6px;background:var(--surface2);color:var(--muted);">A+</th><th style="padding:6px;background:var(--surface2);color:var(--muted);">B−</th><th style="padding:6px;background:var(--surface2);color:var(--muted);">B+</th><th style="padding:6px;background:var(--surface2);color:var(--muted);">AB−</th><th style="padding:6px;background:var(--surface2);color:var(--muted);">AB+</th></tr></thead>
+          <tbody id="bloodMatrix"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- HLA -->
+  <div id="compat-hla" class="compat-tab" style="display:none;">
+    <div class="card">
+      <div class="card-title"><span class="icon">🧬</span> HLA (Human Leukocyte Antigen) Matching</div>
+      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1.5rem;">HLA matching reduces rejection risk. 6/6 is ideal; ≥4/6 is generally acceptable for most organs.</p>
+      <div class="grid-2">
+        <div>
+          <label style="margin-bottom:0.75rem;display:block;">Donor HLA Profile</label>
+          <div class="grid-2" style="gap:0.5rem;">
+            <div class="form-group"><label>HLA-A1</label><input value="A2"/></div>
+            <div class="form-group"><label>HLA-A2</label><input value="A24"/></div>
+            <div class="form-group"><label>HLA-B1</label><input value="B7"/></div>
+            <div class="form-group"><label>HLA-B2</label><input value="B44"/></div>
+            <div class="form-group"><label>HLA-DR1</label><input value="DR4"/></div>
+            <div class="form-group"><label>HLA-DR2</label><input value="DR11"/></div>
+          </div>
+        </div>
+        <div>
+          <label style="margin-bottom:0.75rem;display:block;">Recipient HLA Profile</label>
+          <div class="grid-2" style="gap:0.5rem;">
+            <div class="form-group"><label>HLA-A1</label><input value="A2"/></div>
+            <div class="form-group"><label>HLA-A2</label><input value="A3"/></div>
+            <div class="form-group"><label>HLA-B1</label><input value="B7"/></div>
+            <div class="form-group"><label>HLA-B2</label><input value="B57"/></div>
+            <div class="form-group"><label>HLA-DR1</label><input value="DR4"/></div>
+            <div class="form-group"><label>HLA-DR2</label><input value="DR7"/></div>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="calcHLA()">Calculate HLA Match</button>
+      <div id="hlaResult" style="margin-top:1rem;"></div>
+    </div>
+  </div>
+
+  <!-- SIZE -->
+  <div id="compat-size" class="compat-tab" style="display:none;">
+    <div class="card">
+      <div class="card-title"><span class="icon">📏</span> Organ Size Compatibility</div>
+      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1.5rem;">Organ dimensions must fit within the recipient's body cavity. Surgeons verify this before final approval.</p>
+      <div class="grid-2">
+        <div>
+          <p style="font-weight:600;margin-bottom:1rem;font-size:0.9rem;">Donor Organ Measurements</p>
+          <div class="form-group"><label>Organ Type</label><select><option>Kidney</option><option selected>Heart</option><option>Liver</option><option>Lung</option></select></div>
+          <div class="form-group"><label>Weight (grams)</label><input type="number" value="310" id="donorWeight"/></div>
+          <div class="form-group"><label>Length (cm)</label><input type="number" value="12.5"/></div>
+          <div class="form-group"><label>Width (cm)</label><input type="number" value="9.0"/></div>
+          <div class="form-group"><label>Donor Body Weight (kg)</label><input type="number" value="72"/></div>
+          <div class="form-group"><label>Donor Height (cm)</label><input type="number" value="175"/></div>
+        </div>
+        <div>
+          <p style="font-weight:600;margin-bottom:1rem;font-size:0.9rem;">Recipient Measurements</p>
+          <div class="form-group"><label>Predicted Organ Size (by BMI)</label><input type="number" value="295" id="recipWeight"/></div>
+          <div class="form-group"><label>Chest Circumference (cm)</label><input type="number" value="88"/></div>
+          <div class="form-group"><label>Body Cavity Width (cm)</label><input type="number" value="9.5"/></div>
+          <div class="form-group"><label>Recipient Body Weight (kg)</label><input type="number" value="68"/></div>
+          <div class="form-group"><label>Recipient Height (cm)</label><input type="number" value="170"/></div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="checkSize()">Assess Size Fit</button>
+      <div id="sizeResult" style="margin-top:1rem;"></div>
+      <div class="compat-result warn" style="margin-top:1rem;">
+        <strong>⚠ Note to Surgeons:</strong> Size compatibility is estimated from morphometric data. Final confirmation requires physical inspection and imaging (CT/MRI) by the transplant surgical team before proceeding.
+      </div>
+    </div>
+  </div>
+
+  <!-- CROSSMATCH -->
+  <div id="compat-crossmatch" class="compat-tab" style="display:none;">
+    <div class="card">
+      <div class="card-title"><span class="icon">🧪</span> Crossmatch Test Results</div>
+      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1.5rem;">Crossmatch tests detect pre-formed antibodies that could cause hyperacute rejection. Must be done in lab before transplant.</p>
+      <div class="grid-2">
+        <div>
+          <div class="form-group"><label>CDC Crossmatch (Complement-Dependent Cytotoxicity)</label>
+            <select id="cdcResult" onchange="updateCrossmatch()">
+              <option value="negative" selected>Negative ✅</option>
+              <option value="positive">Positive ❌</option>
+              <option value="weak">Weakly Positive ⚠</option>
+            </select></div>
+          <div class="form-group"><label>Flow Cytometry Crossmatch (FCXM)</label>
+            <select id="fcxmResult" onchange="updateCrossmatch()">
+              <option value="negative" selected>Negative ✅</option>
+              <option value="positive">Positive ❌</option>
+            </select></div>
+          <div class="form-group"><label>Panel Reactive Antibody (PRA %)</label>
+            <input type="number" value="12" id="praVal" min="0" max="100" onchange="updateCrossmatch()"/></div>
+          <div class="form-group"><label>DSA (Donor Specific Antibodies)</label>
+            <select id="dsaResult" onchange="updateCrossmatch()">
+              <option value="negative" selected>Not Detected ✅</option>
+              <option value="low">Low Level Detected ⚠</option>
+              <option value="high">High Level Detected ❌</option>
+            </select></div>
+        </div>
+        <div id="crossmatchSummary" style=""></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIGN OFF -->
+  <div id="compat-signoff" class="compat-tab" style="display:none;">
+    <div class="card">
+      <div class="card-title"><span class="icon">✍️</span> Surgical Team Sign-off</div>
+      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1.5rem;">Final offline verification by the transplant team. All four specialists must clear the case before surgery proceeds.</p>
+
+      <div style="display:flex;flex-direction:column;gap:1rem;margin-bottom:1.5rem;">
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+            <div><strong>Dr. Rajesh Menon</strong> — Transplant Surgeon</div>
+            <span class="badge badge-success">✓ Cleared</span>
+          </div>
+          <p style="font-size:0.8rem;color:var(--muted);">Verified organ size, viability, and surgical approach. Cleared for OR.</p>
+          <p style="font-size:0.75rem;color:var(--muted);margin-top:4px;">Signed: 14 Jun 2025, 08:32 AM</p>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+            <div><strong>Dr. Priya Nair</strong> — Immunologist</div>
+            <span class="badge badge-success">✓ Cleared</span>
+          </div>
+          <p style="font-size:0.8rem;color:var(--muted);">HLA mismatch acceptable (4/6). PRA low at 12%. DSA negative. Approved immunosuppression protocol.</p>
+          <p style="font-size:0.75rem;color:var(--muted);margin-top:4px;">Signed: 14 Jun 2025, 09:15 AM</p>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+            <div><strong>Dr. Venkat Subramaniam</strong> — Nephrologist</div>
+            <span class="badge badge-warn">⏳ Pending</span>
+          </div>
+          <p style="font-size:0.8rem;color:var(--muted);">Awaiting review of recipient's latest GFR and pre-transplant dialysis history.</p>
+          <div style="margin-top:0.75rem;">
+            <div class="form-group"><label>Notes</label><textarea placeholder="Add clinical notes..."></textarea></div>
+            <button class="btn btn-primary btn-sm">Submit Clearance</button>
+          </div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+            <div><strong>Dr. Amita Rao</strong> — Anaesthesiologist</div>
+            <span class="badge badge-neutral">Not Yet Reviewed</span>
+          </div>
+          <p style="font-size:0.8rem;color:var(--muted);">Pre-anaesthesia evaluation pending. Patient has mild cardiac history.</p>
+        </div>
+      </div>
+
+      <div class="alert alert-warn">
+        <span class="alert-icon">⚠️</span>
+        <strong>Surgery on hold</strong> — 2 of 4 specialist sign-offs pending. Surgery cannot proceed until all team members clear the case.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== POST-TRANSPLANT MONITORING ====== -->
+<div id="monitoring" class="section">
+  <div class="page-title">Post-Transplant Monitoring</div>
+  <div class="page-sub">Immune response tracking, rejection detection, and allergy surveillance</div>
+
+  <!-- Patient selector -->
+  <div class="card" style="padding:1rem 1.5rem;">
+    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <div style="flex:1;">
+        <label>Active Patient</label>
+        <select onchange="switchPatient(this.value)" id="patientSelect">
+          <option value="priya">🚨 Priya S. — Liver (Day 14) — ALERT</option>
+          <option value="arun">✅ Arun K. — Kidney (Day 180)</option>
+          <option value="mohan">🟡 Mohan R. — Liver (Day 90)</option>
+        </select>
+      </div>
+      <button class="btn btn-secondary" onclick="">+ Add Patient</button>
+    </div>
+  </div>
+
+  <div id="patientMonitorView"></div>
+</div>
+
+<!-- ====== FOLLOW-UP ====== -->
+<div id="followup" class="section">
+  <div class="page-title">Follow-Up & Allergy Tracking</div>
+  <div class="page-sub">Long-term surveillance, drug sensitivity, and scheduled care</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="icon">📋</span> Schedule Follow-Up</div>
+      <div class="form-group"><label>Patient Name</label><input type="text" value="Priya S."/></div>
+      <div class="form-group"><label>Transplant Type</label><select><option>Liver</option><option>Kidney</option><option>Heart</option><option>Lung</option></select></div>
+      <div class="form-group"><label>Follow-up Type</label>
+        <select>
+          <option>Routine Checkup</option>
+          <option>Lab Panel (LFT/KFT/CBC)</option>
+          <option>Imaging (Ultrasound/CT)</option>
+          <option>Biopsy</option>
+          <option>Allergy/Drug Sensitivity Review</option>
+          <option>Immunosuppressant Adjustment</option>
+          <option>Emergency Review</option>
+        </select></div>
+      <div class="grid-2">
+        <div class="form-group"><label>Date</label><input type="date"/></div>
+        <div class="form-group"><label>Time</label><input type="time" value="10:00"/></div>
+      </div>
+      <div class="form-group"><label>Assigned Doctor</label><input type="text" value="Dr. Priya Nair"/></div>
+      <div class="form-group"><label>Notes</label><textarea>Monitor creatinine, tacrolimus trough levels. Check for signs of rejection.</textarea></div>
+      <button class="btn btn-primary">Schedule Appointment</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">⚠️</span> Log Allergy / Adverse Reaction</div>
+      <div class="form-group"><label>Patient</label><input value="Priya S."/></div>
+      <div class="form-group"><label>Reaction Type</label>
+        <select>
+          <option>Drug Allergy (Immunosuppressant)</option>
+          <option>Organ Rejection Signal</option>
+          <option>Infection / Opportunistic</option>
+          <option>GI Side Effects</option>
+          <option>Nephrotoxicity</option>
+          <option>Skin Reaction</option>
+          <option>Cardiovascular Event</option>
+          <option>Neurological Symptom</option>
+        </select></div>
+      <div class="form-group"><label>Drug/Trigger</label><input value="Tacrolimus (Prograf)"/></div>
+      <div class="form-group"><label>Severity</label>
+        <select>
+          <option>Mild — Monitor</option>
+          <option selected>Moderate — Adjust Dose</option>
+          <option>Severe — Switch Drug</option>
+          <option>Critical — Emergency Protocol</option>
+        </select></div>
+      <div class="form-group"><label>Symptoms Observed</label><textarea>Elevated creatinine (2.8 mg/dL), mild fever (38.2°C), fatigue, decreased urine output.</textarea></div>
+      <button class="btn btn-warn">Log Reaction & Alert Team</button>
+    </div>
+  </div>
+
+  <!-- Allergy History -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📂</span> Allergy & Reaction History — Priya S.</div>
+    <table class="match-table">
+      <thead><tr><th>Date</th><th>Reaction Type</th><th>Drug/Trigger</th><th>Severity</th><th>Action Taken</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Jun 25, 2025</td>
+          <td>Organ Rejection Signal</td>
+          <td>Tacrolimus levels sub-therapeutic</td>
+          <td><span class="badge badge-danger">Severe</span></td>
+          <td>Dose increased; pulse steroid started</td>
+          <td><span class="badge badge-warn">Monitoring</span></td>
+        </tr>
+        <tr>
+          <td>Jun 18, 2025</td>
+          <td>GI Side Effects</td>
+          <td>Mycophenolate Mofetil</td>
+          <td><span class="badge badge-warn">Moderate</span></td>
+          <td>Dose reduced by 25%</td>
+          <td><span class="badge badge-success">Resolved</span></td>
+        </tr>
+        <tr>
+          <td>Jun 12, 2025</td>
+          <td>Drug Allergy</td>
+          <td>Sulfa antibiotics (prophylaxis)</td>
+          <td><span class="badge badge-warn">Moderate</span></td>
+          <td>Switched to Pentamidine</td>
+          <td><span class="badge badge-success">Resolved</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Long-term Schedule -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🗓️</span> Long-Term Follow-Up Schedule</div>
+    <p style="font-size:0.8rem;color:var(--muted);margin-bottom:1rem;">Evidence-based monitoring schedule post-liver transplant</p>
+    <div class="schedule-row"><div class="schedule-date">Week 1–4</div><div class="schedule-info"><div class="schedule-type">Twice-weekly labs</div><div class="schedule-sub">LFT, tacrolimus trough, CBC, creatinine, electrolytes</div></div><span class="badge badge-danger">Active</span></div>
+    <div class="schedule-row"><div class="schedule-date">Month 2–3</div><div class="schedule-info"><div class="schedule-type">Weekly labs + Clinic Visit</div><div class="schedule-sub">Liver biopsy at Day 60 to rule out subclinical rejection</div></div><span class="badge badge-warn">Upcoming</span></div>
+    <div class="schedule-row"><div class="schedule-date">Month 3–6</div><div class="schedule-info"><div class="schedule-type">Fortnightly labs</div><div class="schedule-sub">Imaging (Doppler ultrasound), allergy reassessment</div></div><span class="badge badge-neutral">Scheduled</span></div>
+    <div class="schedule-row"><div class="schedule-date">Month 6–12</div><div class="schedule-info"><div class="schedule-type">Monthly clinic</div><div class="schedule-sub">Full metabolic panel, bone density, skin check, BP monitoring</div></div><span class="badge badge-neutral">Scheduled</span></div>
+    <div class="schedule-row"><div class="schedule-date">Year 1+</div><div class="schedule-info"><div class="schedule-type">Quarterly long-term care</div><div class="schedule-sub">Annual biopsy, cancer surveillance (PTLD), cardiovascular screening</div></div><span class="badge badge-neutral">Scheduled</span></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ---- NAVIGATION ----
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const tabs = { dashboard: 0, register: 1, allocation: 2, compatibility: 3, monitoring: 4, followup: 5 };
+  document.querySelectorAll('.nav-tab')[tabs[id]].classList.add('active');
+  if (id === 'compatibility') { initCompat(); }
+  if (id === 'monitoring') { renderPatient('priya'); }
+  if (id === 'register') { setTodayDates(); }
+}
+
+// ---- REGISTRATION DATA STORE ----
+const donors = [];
+const recipients = [];
+let donorCount = 1000;
+let recipientCount = 2000;
+
+function setTodayDates() {
+  const today = new Date().toISOString().split('T')[0];
+  ['d-regdate','r-regdate'].forEach(id => { const el = document.getElementById(id); if (el && !el.value) el.value = today; });
+}
+
+// BMI auto-calc
+function setupBMI(wId, hId, bId) {
+  [wId, hId].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      const w = parseFloat(document.getElementById(wId).value);
+      const h = parseFloat(document.getElementById(hId).value) / 100;
+      if (w && h) document.getElementById(bId).value = (w / (h * h)).toFixed(1);
+    });
+  });
+}
+setTimeout(() => { setupBMI('d-weight','d-height','d-bmi'); setupBMI('r-weight','r-height','r-bmi'); }, 500);
+
+function registerDonor() {
+  const fname = document.getElementById('d-fname').value.trim();
+  const lname = document.getElementById('d-lname').value.trim();
+  const blood = document.getElementById('d-blood').value;
+  const consent = document.getElementById('d-consent').checked;
+  const organs = [...document.querySelectorAll('#d-organs input:checked')].map(c => c.value);
+
+  if (!fname || !lname) return showMsg('donorMsg','warn','Please enter the donor\'s full name.');
+  if (!blood) return showMsg('donorMsg','warn','Please select a blood type.');
+  if (organs.length === 0) return showMsg('donorMsg','warn','Please select at least one organ to donate.');
+  if (!consent) return showMsg('donorMsg','warn','Informed consent must be checked to proceed.');
+
+  const donor = {
+    id: 'DN-' + (++donorCount),
+    name: fname + ' ' + lname,
+    age: document.getElementById('d-age').value || '—',
+    blood,
+    organs: organs.join(', '),
+    hospital: document.getElementById('d-hospital').value || '—',
+    type: document.getElementById('d-type').value,
+    date: document.getElementById('d-regdate').value || new Date().toISOString().split('T')[0],
+    status: 'Active'
+  };
+  donors.push(donor);
+  renderTables();
+  showMsg('donorMsg','success',`✅ Donor ${donor.name} registered successfully! ID: ${donor.id}`);
+  // Clear key fields
+  ['d-fname','d-lname','d-age','d-id','d-phone','d-email','d-address','d-conditions','d-meds','d-hospital','d-doctor'].forEach(id => document.getElementById(id).value = '');
+  document.querySelectorAll('#d-organs input').forEach(c => c.checked = false);
+  document.getElementById('d-consent').checked = false;
+}
+
+function registerRecipient() {
+  const fname = document.getElementById('r-fname').value.trim();
+  const lname = document.getElementById('r-lname').value.trim();
+  const blood = document.getElementById('r-blood').value;
+  const organ = document.getElementById('r-organ').value;
+  const consent = document.getElementById('r-consent').checked;
+  const urgency = document.getElementById('r-urgency').value;
+
+  if (!fname || !lname) return showMsg('recipientMsg','warn','Please enter the recipient\'s full name.');
+  if (!blood) return showMsg('recipientMsg','warn','Please select a blood type.');
+  if (!consent) return showMsg('recipientMsg','warn','Patient consent must be checked to proceed.');
+
+  const urgencyLabels = { critical:'🔴 Critical', high:'🟠 High', medium:'🟡 Medium', low:'🟢 Low' };
+  const recipient = {
+    id: 'RC-' + (++recipientCount),
+    name: fname + ' ' + lname,
+    age: document.getElementById('r-age').value || '—',
+    blood,
+    organ,
+    urgency: urgencyLabels[urgency],
+    hospital: document.getElementById('r-hospital').value || '—',
+    waitTime: document.getElementById('r-waittime').value,
+    status: 'Waitlisted'
+  };
+  recipients.push(recipient);
+  renderTables();
+  showMsg('recipientMsg','success',`✅ Recipient ${recipient.name} registered! ID: ${recipient.id} — Added to ${organ} waitlist.`);
+  ['r-fname','r-lname','r-age','r-id','r-phone','r-email','r-address','r-diagnosis','r-treatment','r-allergies','r-hospital','r-doctor','r-pra'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('r-consent').checked = false;
+}
+
+function renderTables() {
+  const dtbody = document.getElementById('donorTbody');
+  if (donors.length === 0) {
+    dtbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--muted);">No donors registered yet.</td></tr>';
+  } else {
+    dtbody.innerHTML = donors.map(d => `<tr>
+      <td><span style="color:var(--accent);font-weight:600">${d.id}</span></td>
+      <td><strong>${d.name}</strong></td>
+      <td>${d.age}</td>
+      <td><span class="badge badge-info">${d.blood}</span></td>
+      <td style="font-size:0.8rem">${d.organs}</td>
+      <td style="font-size:0.8rem">${d.hospital}</td>
+      <td style="font-size:0.78rem;color:var(--muted)">${d.type}</td>
+      <td style="font-size:0.8rem">${d.date}</td>
+      <td><span class="badge badge-success">${d.status}</span></td>
+    </tr>`).join('');
+  }
+
+  const rtbody = document.getElementById('recipientTbody');
+  if (recipients.length === 0) {
+    rtbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--muted);">No recipients registered yet.</td></tr>';
+  } else {
+    rtbody.innerHTML = recipients.map(r => `<tr>
+      <td><span style="color:var(--accent);font-weight:600">${r.id}</span></td>
+      <td><strong>${r.name}</strong></td>
+      <td>${r.age}</td>
+      <td><span class="badge badge-info">${r.blood}</span></td>
+      <td>🫀 ${r.organ}</td>
+      <td>${r.urgency}</td>
+      <td style="font-size:0.8rem">${r.hospital}</td>
+      <td style="font-size:0.78rem;color:var(--muted)">${r.waitTime}</td>
+      <td><span class="badge badge-warn">${r.status}</span></td>
+    </tr>`).join('');
+  }
+}
+
+function showMsg(id, type, text) {
+  const el = document.getElementById(id);
+  const cls = type === 'success' ? 'alert-success' : type === 'warn' ? 'alert-warn' : 'alert-danger';
+  const icon = type === 'success' ? '✅' : '⚠️';
+  el.innerHTML = `<div class="alert ${cls}" style="margin-top:1rem"><span class="alert-icon">${icon}</span>${text}</div>`;
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  setTimeout(() => el.innerHTML = '', 5000);
+}
+
+function showInnerTab(group, tab) {
+  document.querySelectorAll(`.compat-tab`).forEach(t => t.style.display = 'none');
+  document.getElementById(`${group}-${tab}`).style.display = 'block';
+  document.querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// ---- BLOOD TYPE ----
+const compatible = {
+  'O-': ['O-','O+','A-','A+','B-','B+','AB-','AB+'],
+  'O+': ['O+','A+','B+','AB+'],
+  'A-': ['A-','A+','AB-','AB+'],
+  'A+': ['A+','AB+'],
+  'B-': ['B-','B+','AB-','AB+'],
+  'B+': ['B+','AB+'],
+  'AB-': ['AB-','AB+'],
+  'AB+': ['AB+']
+};
+
+function checkBloodCompat() {
+  const donor = document.getElementById('donorBlood').value;
+  const recip = document.getElementById('recipBlood').value;
+  const ok = (compatible[donor] || []).includes(recip);
+  const el = document.getElementById('bloodResult');
+  if (ok) {
+    el.innerHTML = `<div class="compat-result pass">
+      <div class="check-row"><span class="check-icon">✅</span> <strong>Compatible</strong> — Donor ${donor} can donate to Recipient ${recip}</div>
+      <div class="check-row" style="margin-top:6px;color:var(--muted);font-size:0.8rem">Blood type is a necessary but not sufficient condition. HLA and crossmatch must also pass.</div>
+    </div>`;
+  } else {
+    el.innerHTML = `<div class="compat-result fail">
+      <div class="check-row"><span class="check-icon">❌</span> <strong>Incompatible</strong> — Donor ${donor} cannot donate to Recipient ${recip}</div>
+      <div class="check-row" style="margin-top:6px;color:var(--muted);font-size:0.8rem">ABO incompatibility causes hyperacute rejection. This match cannot proceed.</div>
+    </div>`;
+  }
+  buildBloodMatrix(donor, recip);
+}
+
+function buildBloodMatrix(selDonor, selRecip) {
+  const groups = ['O-','O+','A-','A+','B-','B+','AB-','AB+'];
+  const tbody = document.getElementById('bloodMatrix');
+  tbody.innerHTML = '';
+  groups.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td style="padding:5px 8px;font-weight:600;color:var(--muted);">${r}</td>`;
+    groups.forEach(d => {
+      const ok = (compatible[d] || []).includes(r);
+      const highlight = (d === selDonor && r === selRecip) ? 'outline:2px solid var(--accent);outline-offset:1px;' : '';
+      tr.innerHTML += `<td style="padding:5px;text-align:center;border-radius:4px;background:${ok ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.1)'};${highlight}">${ok ? '✓' : '✗'}</td>`;
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+// ---- HLA ----
+function calcHLA() {
+  const donorInputs = ['A2','A24','B7','B44','DR4','DR11'];
+  const recipInputs = ['A2','A3','B7','B57','DR4','DR7'];
+  let matches = 0;
+  const labels = ['HLA-A1','HLA-A2','HLA-B1','HLA-B2','HLA-DR1','HLA-DR2'];
+  let rows = '';
+  for (let i = 0; i < 6; i++) {
+    const m = donorInputs[i] === recipInputs[i];
+    if (m) matches++;
+    rows += `<div class="check-row"><span class="check-icon">${m ? '✅' : '❌'}</span> ${labels[i]}: Donor <strong>${donorInputs[i]}</strong> vs Recipient <strong>${recipInputs[i]}</strong> — ${m ? 'Match' : 'Mismatch'}</div>`;
+  }
+  const pct = Math.round((matches/6)*100);
+  const cls = matches >= 5 ? 'pass' : matches >= 4 ? 'warn' : 'fail';
+  document.getElementById('hlaResult').innerHTML = `
+    <div class="compat-result ${cls}">
+      <strong>${matches}/6 antigens matched (${pct}%)</strong>
+      ${matches >= 5 ? ' — Excellent match. Low rejection risk.' : matches >= 4 ? ' — Acceptable match. Standard immunosuppression recommended.' : ' — Poor match. High rejection risk. Consider alternative recipient.'}
+      <div style="margin-top:1rem;">${rows}</div>
+    </div>`;
+}
+
+// ---- SIZE ----
+function checkSize() {
+  const d = parseInt(document.getElementById('donorWeight').value);
+  const r = parseInt(document.getElementById('recipWeight').value);
+  const diff = Math.abs(d - r);
+  const pct = Math.round((diff / r) * 100);
+  const el = document.getElementById('sizeResult');
+  if (pct <= 15) {
+    el.innerHTML = `<div class="compat-result pass"><span>✅</span> <strong>Good Size Match</strong> — ${pct}% size difference (${diff}g). Within acceptable range (≤15%). Surgeon confirmation still required.</div>`;
+  } else if (pct <= 25) {
+    el.innerHTML = `<div class="compat-result warn"><span>⚠</span> <strong>Marginal Size Match</strong> — ${pct}% difference (${diff}g). Surgeon must assess anatomical fit via imaging before proceeding.</div>`;
+  } else {
+    el.innerHTML = `<div class="compat-result fail"><span>❌</span> <strong>Size Mismatch</strong> — ${pct}% difference (${diff}g). Likely too large/small for recipient cavity. Surgical team must review.</div>`;
+  }
+}
+
+// ---- CROSSMATCH ----
+function updateCrossmatch() {
+  const cdc = document.getElementById('cdcResult').value;
+  const fcxm = document.getElementById('fcxmResult').value;
+  const pra = parseInt(document.getElementById('praVal').value);
+  const dsa = document.getElementById('dsaResult').value;
+
+  const risks = [];
+  let overall = 'pass';
+
+  if (cdc === 'positive') { risks.push({ icon: '❌', text: 'CDC Crossmatch POSITIVE — hyperacute rejection risk. Transplant contraindicated.' }); overall = 'fail'; }
+  else if (cdc === 'weak') { risks.push({ icon: '⚠', text: 'CDC Weakly Positive — repeat test and flow cytometry recommended.' }); if (overall !== 'fail') overall = 'warn'; }
+  else risks.push({ icon: '✅', text: 'CDC Crossmatch negative.' });
+
+  if (fcxm === 'positive') { risks.push({ icon: '❌', text: 'Flow Cytometry POSITIVE — T- or B-cell antibodies detected. High rejection risk.' }); overall = 'fail'; }
+  else risks.push({ icon: '✅', text: 'Flow Cytometry Crossmatch negative.' });
+
+  if (pra > 80) { risks.push({ icon: '❌', text: `PRA ${pra}% — Highly sensitized. Very high rejection risk.` }); overall = 'fail'; }
+  else if (pra > 30) { risks.push({ icon: '⚠', text: `PRA ${pra}% — Moderately sensitized. Enhanced monitoring required.` }); if (overall !== 'fail') overall = 'warn'; }
+  else risks.push({ icon: '✅', text: `PRA ${pra}% — Low sensitization.` });
+
+  if (dsa === 'high') { risks.push({ icon: '❌', text: 'High-level DSA detected — significant rejection risk.' }); overall = 'fail'; }
+  else if (dsa === 'low') { risks.push({ icon: '⚠', text: 'Low-level DSA — requires desensitization protocol consideration.' }); if (overall !== 'fail') overall = 'warn'; }
+  else risks.push({ icon: '✅', text: 'No Donor-Specific Antibodies detected.' });
+
+  const headline = overall === 'pass' ? '✅ Crossmatch CLEAR — Proceed with transplant' : overall === 'warn' ? '⚠ Conditional — Surgical team review required' : '❌ Crossmatch FAILED — Do not proceed';
+
+  document.getElementById('crossmatchSummary').innerHTML = `
+    <div class="compat-result ${overall}">
+      <strong>${headline}</strong>
+      <div style="margin-top:1rem;">${risks.map(r => `<div class="check-row"><span class="check-icon">${r.icon}</span> ${r.text}</div>`).join('')}</div>
+    </div>`;
+}
+
+// ---- PATIENT MONITORING ----
+const patients = {
+  priya: {
+    name: 'Priya S., 42F',
+    organ: 'Liver Transplant',
+    day: 14,
+    status: 'danger',
+    statusLabel: '🚨 Rejection Alert',
+    vitals: [
+      { val: '38.2°C', name: 'Temperature', color: '#ef4444' },
+      { val: '2.8', name: 'Creatinine', unit: 'mg/dL', color: '#ef4444' },
+      { val: '142', name: 'ALT', unit: 'U/L', color: '#f59e0b' },
+      { val: '6.2', name: 'Tacrolimus', unit: 'ng/mL', color: '#f59e0b' }
+    ],
+    rejectionRisk: 72,
+    rejectionColor: '#ef4444',
+    alerts: [
+      { type: 'danger', text: 'Acute cellular rejection suspected. Liver biopsy ordered.' },
+      { type: 'warn', text: 'Tacrolimus trough below therapeutic range. Dose adjustment initiated.' }
+    ],
+    timeline: [
+      { date: 'Day 14 (Today)', text: 'Elevated ALT/AST. Fever 38.2°C. Rejection workup initiated.', cls: 'danger' },
+      { date: 'Day 10', text: 'Mild increase in liver enzymes noted. Tacrolimus adjusted.', cls: 'warn' },
+      { date: 'Day 7', text: 'First post-op clinic visit. Stable. Discharged to ward.', cls: '' },
+      { date: 'Day 3', text: 'ICU monitoring. Vitals stable. Bile production confirmed.', cls: '' },
+      { date: 'Day 0', text: 'Liver transplant surgery completed. 7hr 20min. No intraop complications.', cls: '' }
+    ]
+  },
+  arun: {
+    name: 'Arun K., 38M',
+    organ: 'Kidney Transplant',
+    day: 180,
+    status: 'success',
+    statusLabel: '✅ Stable Recovery',
+    vitals: [
+      { val: '36.8°C', name: 'Temperature', color: '#10b981' },
+      { val: '1.1', name: 'Creatinine', unit: 'mg/dL', color: '#10b981' },
+      { val: '62', name: 'eGFR', unit: 'mL/min', color: '#10b981' },
+      { val: '8.4', name: 'Tacrolimus', unit: 'ng/mL', color: '#00c9a7' }
+    ],
+    rejectionRisk: 8,
+    rejectionColor: '#10b981',
+    alerts: [
+      { type: 'success', text: '6-month milestone achieved. All markers within normal range.' }
+    ],
+    timeline: [
+      { date: 'Day 180 (Today)', text: '6-month review. Excellent graft function. Immunosuppression to be reduced.', cls: '' },
+      { date: 'Day 90', text: '3-month biopsy — no rejection. Dose tapered.', cls: '' },
+      { date: 'Day 30', text: 'Mild UTI treated. Creatinine transiently elevated, resolved.', cls: 'warn' },
+      { date: 'Day 7', text: 'Discharged home. Creatinine 1.3, improving.', cls: '' },
+      { date: 'Day 0', text: 'Kidney transplant. Left iliac fossa. Immediate graft function.', cls: '' }
+    ]
+  },
+  mohan: {
+    name: 'Mohan R., 55M',
+    organ: 'Liver Transplant',
+    day: 90,
+    status: 'warn',
+    statusLabel: '🟡 Monitoring',
+    vitals: [
+      { val: '37.1°C', name: 'Temperature', color: '#10b981' },
+      { val: '1.4', name: 'Creatinine', unit: 'mg/dL', color: '#f59e0b' },
+      { val: '88', name: 'ALT', unit: 'U/L', color: '#f59e0b' },
+      { val: '9.1', name: 'Tacrolimus', unit: 'ng/mL', color: '#10b981' }
+    ],
+    rejectionRisk: 28,
+    rejectionColor: '#f59e0b',
+    alerts: [
+      { type: 'warn', text: 'Mild enzyme elevation. Biopsy scheduled for Day 95.' },
+      { type: 'warn', text: 'New onset hypertension — likely tacrolimus-related. Amlodipine started.' }
+    ],
+    timeline: [
+      { date: 'Day 90 (Today)', text: 'Mild ALT elevation. Biopsy ordered. HTN managed.', cls: 'warn' },
+      { date: 'Day 60', text: 'Protocol biopsy — borderline changes. Immunosuppression optimized.', cls: 'warn' },
+      { date: 'Day 30', text: 'Routine review. Stable. Discharged from hepatology outpatient.', cls: '' },
+      { date: 'Day 0', text: 'Living donor liver transplant. Right lobe. 9hr surgery.', cls: '' }
+    ]
+  }
+};
+
+function renderPatient(pid) {
+  const p = patients[pid];
+  const riskPct = p.rejectionRisk;
+  let alertsHtml = p.alerts.map(a => `<div class="alert alert-${a.type}"><span class="alert-icon">${a.type==='danger'?'🚨':a.type==='warn'?'⚠️':'✅'}</span> ${a.text}</div>`).join('');
+  let vitalsHtml = p.vitals.map(v => `<div class="vital-card"><div class="vital-val" style="color:${v.color}">${v.val}</div><div class="vital-name">${v.name}</div>${v.unit ? `<div class="vital-unit">${v.unit}</div>` : ''}</div>`).join('');
+  let tlHtml = p.timeline.map(t => `<div class="tl-item ${t.cls}"><div class="tl-date">${t.date}</div><div class="tl-text">${t.text}</div></div>`).join('');
+
+  document.getElementById('patientMonitorView').innerHTML = `
+    <div class="grid-2" style="margin-bottom:1.5rem;">
+      <div class="card">
+        <div class="card-title"><span class="icon">👤</span> ${p.name}</div>
+        <div style="font-size:0.875rem;color:var(--muted);">${p.organ}</div>
+        <div style="margin:8px 0;"><span class="badge badge-${p.status==='danger'?'danger':p.status==='success'?'success':'warn'}">${p.statusLabel}</span> <span style="font-size:0.8rem;color:var(--muted);">Post-op Day ${p.day}</span></div>
+        <hr class="divider"/>
+        ${alertsHtml}
+        <div style="margin-top:1rem;">
+          <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:4px;"><span style="color:var(--muted)">Rejection Risk Score</span><span style="color:${p.rejectionColor};font-weight:700">${riskPct}%</span></div>
+          <div class="risk-meter"><div class="risk-fill" style="width:${riskPct}%;background:${p.rejectionColor}"></div></div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-top:4px;">${riskPct>60?'High — Biopsy & protocol adjustment required':riskPct>30?'Moderate — Close monitoring, possible biopsy':'Low — Continue standard protocol'}</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">📈</span> Today's Vitals & Labs</div>
+        <div class="vitals-grid" style="grid-template-columns:1fr 1fr;">${vitalsHtml}</div>
+        <hr class="divider"/>
+        <div style="font-size:0.8rem;font-weight:600;margin-bottom:0.75rem;color:var(--muted);">IMMUNOSUPPRESSION CURRENT REGIME</div>
+        <div style="font-size:0.85rem;display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;justify-content:space-between;"><span>Tacrolimus (Prograf)</span><span style="color:var(--accent)">3mg BD</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>Mycophenolate Mofetil</span><span style="color:var(--accent)">500mg BD</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>Prednisolone</span><span style="color:var(--accent)">5mg OD</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">🕐</span> Clinical Timeline</div>
+      <div class="timeline">${tlHtml}</div>
+    </div>`;
+}
+
+function switchPatient(val) { renderPatient(val); }
+
+// ---- INIT ----
+function initCompat() {
+  checkBloodCompat();
+  updateCrossmatch();
+}
+
+// Initialize
+buildBloodMatrix('B+', 'B+');
+checkBloodCompat();
+</script>
+</body>
+</html>
